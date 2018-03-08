@@ -23,13 +23,17 @@ router.get('/lessons', function (req, res) {
         collection.findOne({name}, (err, result) => {
             assert.equal(err, null);
             client.close();
-            res.json(result);
+            res.json(JSON.parse(result.lesson));
         });
     })
 });
 
 router.post('/lessons/add', function (req, res) {
     const name = req.body.name;
+    const json = {
+        name: req.body.name,
+        lesson: req.body.lesson
+    }
 
     MongoClient.connect(url, function (err, client) {
         assert.equal(null, err);
@@ -41,13 +45,13 @@ router.post('/lessons/add', function (req, res) {
             assert.equal(err, null);
 
             if (result === null) {
-                collection.insertOne(req.body, (err, result) => {
+                collection.insertOne(json, (err, result) => {
                     client.close();
                     res.json(result);
                 })
             }
             else {
-                collection.findOneAndReplace({name}, req.body, (err, result) => {
+                collection.findOneAndReplace({name}, json, (err, result) => {
                     client.close();
                     res.json(result);
                 })
